@@ -1,4 +1,5 @@
 
+import java.awt.TextArea;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,6 +9,9 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -20,14 +24,14 @@ import javax.swing.JFileChooser;
  */
 public class MainFrame extends javax.swing.JFrame {
 
-    BufferedReader inputStream = null;
-    PrintWriter outputStream = null;
+    UndoManager undoManager = new UndoManager();
 
     /**
      * Creates new form MainFrame
      */
     public MainFrame() {
         initComponents();
+        initMyComponents();
     }
 
     /**
@@ -52,6 +56,8 @@ public class MainFrame extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         mnExit = new javax.swing.JMenuItem();
         mnEdit = new javax.swing.JMenu();
+        doUndo = new javax.swing.JMenuItem();
+        doRedo = new javax.swing.JMenuItem();
         mnAbout = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -126,6 +132,23 @@ public class MainFrame extends javax.swing.JFrame {
         jMenuBar1.add(mnFile);
 
         mnEdit.setText("Edit");
+
+        doUndo.setText("Undo");
+        doUndo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doUndoActionPerformed(evt);
+            }
+        });
+        mnEdit.add(doUndo);
+
+        doRedo.setText("Redo");
+        doRedo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doRedoActionPerformed(evt);
+            }
+        });
+        mnEdit.add(doRedo);
+
         jMenuBar1.add(mnEdit);
 
         mnAbout.setText("About");
@@ -135,63 +158,108 @@ public class MainFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void mnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnOpenActionPerformed
+    private void openAndReadFile() {
+        BufferedReader inputStream = null;
         JFileChooser chooser = new JFileChooser();
-
         chooser.showOpenDialog(null);
-
         File f = chooser.getSelectedFile();
-        String filename = f.getAbsolutePath();
-        txtArea.setText(filename);
-        
-        
+        File filename = f.getAbsoluteFile();
+
+        String textfile = "";
 
         try {
             inputStream = new BufferedReader(new FileReader(f));
             String line;
-            String textfile = "";
 
             while ((line = inputStream.readLine()) != null) {
-                
+                System.out.println(line);
+
                 textfile += line + "\n";
             }
-            //txtArea.setText(textfile);
+            txtArea.setText(textfile);
         } catch (IOException ex) {
-           System.out.println("");
+            System.out.println("error");
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
+                    txtArea.setText(textfile);
                 } catch (IOException ex) {
-                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 }
             }
         }
 
-
+    }
+    private void mnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnOpenActionPerformed
+        openAndReadFile();
     }//GEN-LAST:event_mnOpenActionPerformed
+    private void addUndoRedo() {
+        txtArea.getDocument().addUndoableEditListener(undoManager);
 
+    }
     private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
-
+        openAndReadFile();
     }//GEN-LAST:event_btnOpenActionPerformed
 
     private void mnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnNewActionPerformed
 
-
     }//GEN-LAST:event_mnNewActionPerformed
 
     private void mnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnSaveActionPerformed
-        // TODO add your handling code here:
+        saveFile();
     }//GEN-LAST:event_mnSaveActionPerformed
 
     private void mnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnExitActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mnExitActionPerformed
+        int n = JOptionPane.showConfirmDialog(this, "The file isn't salved? do yo wan to save it??", "", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (n == JOptionPane.YES_NO_OPTION) {
+            saveFile();
+        }
+        if (n == JOptionPane.NO_OPTION) {
+            System.exit(0);
+        }
+        if (n == JOptionPane.CANCEL_OPTION) {
 
+        }
+
+
+    }//GEN-LAST:event_mnExitActionPerformed
+    private void saveFile() {
+        JFileChooser saveFile = new JFileChooser();
+        if (saveFile.showSaveDialog(saveFile) == JFileChooser.APPROVE_OPTION) {
+            File savefile = saveFile.getSelectedFile();
+            PrintWriter outputStream = null;
+            if (savefile.exists()) {
+                int n = JOptionPane.showConfirmDialog(this, "Do you want to delete the current text?", "Remove test?", JOptionPane.YES_NO_OPTION);
+                if (n == JOptionPane.YES_NO_OPTION) {
+                    try {
+                        outputStream = new PrintWriter(new FileWriter(savefile));
+                        outputStream.print(txtArea.getText());
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                    }
+
+                }
+            }
+
+        }
+    }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
+        saveFile();
+
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void doUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doUndoActionPerformed
+        undoManager.undo();
+    }//GEN-LAST:event_doUndoActionPerformed
+
+    private void doRedoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doRedoActionPerformed
+        undoManager.redo();
+    }//GEN-LAST:event_doRedoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -231,9 +299,11 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnOpen;
     private javax.swing.JButton btnSave;
+    private javax.swing.JMenuItem doRedo;
+    private javax.swing.JMenuItem doUndo;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenu mnAbout;
     private javax.swing.JMenu mnEdit;
@@ -244,4 +314,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem mnSave;
     private javax.swing.JTextArea txtArea;
     // End of variables declaration//GEN-END:variables
+
+    private void initMyComponents() {
+        addUndoRedo();
+    }
 }

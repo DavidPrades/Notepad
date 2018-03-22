@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.UndoableEditListener;
@@ -98,6 +99,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
+        mnFile.setIcon(new ImageIcon(MainFrame.class.getResource("/com/sun/java/swing/plaf/windows/icons/File.gif")));
         mnFile.setText(bundle.getString("MainFrame.mnFile.text")); // NOI18N
 
         mnNew.setText(bundle.getString("MainFrame.mnNew.text")); // NOI18N

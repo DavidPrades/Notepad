@@ -23,7 +23,7 @@ import javax.swing.undo.UndoManager;
  * @author alu20908719v
  */
 public class MainFrame extends javax.swing.JFrame {
-
+    
     UndoManager undoManager = new UndoManager();
 
     /**
@@ -61,10 +61,14 @@ public class MainFrame extends javax.swing.JFrame {
         mnAbout = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setLocation(new java.awt.Point(500, 750));
+        setPreferredSize(new java.awt.Dimension(400, 400));
+        setResizable(false);
 
         jToolBar1.setRollover(true);
 
-        btnSave.setText("Save");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("Bundle"); // NOI18N
+        btnSave.setText(bundle.getString("MainFrame.btnSave.text")); // NOI18N
         btnSave.setFocusable(false);
         btnSave.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnSave.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -75,7 +79,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jToolBar1.add(btnSave);
 
-        btnOpen.setText("Open");
+        btnOpen.setText(bundle.getString("MainFrame.btnOpen.text")); // NOI18N
         btnOpen.setFocusable(false);
         btnOpen.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnOpen.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -94,9 +98,9 @@ public class MainFrame extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        mnFile.setText("File");
+        mnFile.setText(bundle.getString("MainFrame.mnFile.text")); // NOI18N
 
-        mnNew.setText("New");
+        mnNew.setText(bundle.getString("MainFrame.mnNew.text")); // NOI18N
         mnNew.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mnNewActionPerformed(evt);
@@ -104,7 +108,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         mnFile.add(mnNew);
 
-        mnOpen.setText("Open File");
+        mnOpen.setText(bundle.getString("MainFrame.mnOpen.text")); // NOI18N
         mnOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mnOpenActionPerformed(evt);
@@ -112,7 +116,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         mnFile.add(mnOpen);
 
-        mnSave.setText("Save");
+        mnSave.setText(bundle.getString("MainFrame.mnSave.text")); // NOI18N
         mnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mnSaveActionPerformed(evt);
@@ -121,7 +125,7 @@ public class MainFrame extends javax.swing.JFrame {
         mnFile.add(mnSave);
         mnFile.add(jSeparator1);
 
-        mnExit.setText("Exit");
+        mnExit.setText(bundle.getString("MainFrame.mnExit.text")); // NOI18N
         mnExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mnExitActionPerformed(evt);
@@ -131,9 +135,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(mnFile);
 
-        mnEdit.setText("Edit");
+        mnEdit.setText(bundle.getString("MainFrame.mnEdit.text")); // NOI18N
 
-        doUndo.setText("Undo");
+        doUndo.setText(bundle.getString("MainFrame.doUndo.text")); // NOI18N
+        doUndo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         doUndo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 doUndoActionPerformed(evt);
@@ -141,7 +146,7 @@ public class MainFrame extends javax.swing.JFrame {
         });
         mnEdit.add(doUndo);
 
-        doRedo.setText("Redo");
+        doRedo.setText(bundle.getString("MainFrame.doRedo.text")); // NOI18N
         doRedo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 doRedoActionPerformed(evt);
@@ -151,7 +156,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(mnEdit);
 
-        mnAbout.setText("About");
+        mnAbout.setText(bundle.getString("MainFrame.mnAbout.text")); // NOI18N
         jMenuBar1.add(mnAbout);
 
         setJMenuBar(jMenuBar1);
@@ -164,16 +169,16 @@ public class MainFrame extends javax.swing.JFrame {
         chooser.showOpenDialog(null);
         File f = chooser.getSelectedFile();
         File filename = f.getAbsoluteFile();
-
+        
         String textfile = "";
-
+        
         try {
             inputStream = new BufferedReader(new FileReader(f));
             String line;
-
+            
             while ((line = inputStream.readLine()) != null) {
                 System.out.println(line);
-
+                
                 textfile += line + "\n";
             }
             txtArea.setText(textfile);
@@ -189,21 +194,31 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         }
-
+        
     }
     private void mnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnOpenActionPerformed
         openAndReadFile();
     }//GEN-LAST:event_mnOpenActionPerformed
     private void addUndoRedo() {
         txtArea.getDocument().addUndoableEditListener(undoManager);
-
+        
     }
     private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
         openAndReadFile();
     }//GEN-LAST:event_btnOpenActionPerformed
 
     private void mnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnNewActionPerformed
-
+        int n = JOptionPane.showConfirmDialog(this, "The file isn't salved? do yo wan to save it??", "", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (n == JOptionPane.YES_NO_OPTION) {
+            saveFile();
+        }
+        if (n == JOptionPane.NO_OPTION) {
+            txtArea.setText("");
+        }
+        if (n == JOptionPane.CANCEL_OPTION) {
+            
+        }
+        
     }//GEN-LAST:event_mnNewActionPerformed
 
     private void mnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnSaveActionPerformed
@@ -219,9 +234,9 @@ public class MainFrame extends javax.swing.JFrame {
             System.exit(0);
         }
         if (n == JOptionPane.CANCEL_OPTION) {
-
+            
         }
-
+        
 
     }//GEN-LAST:event_mnExitActionPerformed
     private void saveFile() {
@@ -236,16 +251,16 @@ public class MainFrame extends javax.swing.JFrame {
                         outputStream = new PrintWriter(new FileWriter(savefile));
                         outputStream.print(txtArea.getText());
                     } catch (IOException ex) {
-                        Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                        System.out.println("Error");
                     } finally {
                         if (outputStream != null) {
                             outputStream.close();
                         }
                     }
-
+                    
                 }
             }
-
+            
         }
     }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
